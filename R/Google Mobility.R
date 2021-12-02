@@ -47,7 +47,7 @@ process_google_mobility_data <- function(update = FALSE, path = NULL) {
     )
   google_mobility <- list()
   google_mobility$data <- data
-  google_mobility$subtitle <- paste("Relative to median value from 3 January to 6 February 2020, Mondays to Fridays only.\nLast date in data:", format(max(google_mobility$data$date), "%A %e %B %Y"))
+  google_mobility$subtitle <- paste("Relative to median value from 3 January to 6 February 2020.\nLast date in data:", format(max(google_mobility$data$date), "%A %e %B %Y"))
   google_mobility$caption <- paste("Google LLC Google COVID-19 Community Mobility Reports https://www.google.com/covid19/mobility/", "\nAccessed:", format(Sys.Date(), "%e %B %Y"))
   return(google_mobility)
 }
