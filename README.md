@@ -6,3 +6,5 @@ Non-chart R files contain two functions each: the first (`fetch_*`) will downloa
 The chart R files will look for objects in your environment with specific names: if it can't find them it will run the second function (`process_*`) and create it for you.
 
 Feel free to drop problems or requests into the issues tab.
+
+[Shiny app to explore the data](https://christianspence.shinyapps.io/Google_Mobility/). Its code is in Google_Mobility/app.R.
