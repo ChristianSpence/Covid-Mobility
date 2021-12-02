@@ -76,3 +76,29 @@ google_workplaces_by_day_of_week <- function(sub_region_1_name = "Greater Manche
     ) +
     ggplot_theme
 }
+
+
+google_workplaces_by_core_cities_vs_others <- function(min_date = "2021-09-01") {
+
+  min_date <- as.Date(min_date)
+
+  urban_las <- c("Belfast", "Birmingham", "Bristol, City of", "Cardiff", "Glasgow City", "Leeds", "Liverpool", "Manchester", "Newcastle upon Tyne", "Nottingham", "Sheffield") # Core Cities UK
+
+  google_mobility$data %>%
+    dplyr::filter(date >= min_date,
+                  sub_region_1 != "Greater London",
+                  type == "Workplaces",
+                  lubridate::wday(date) %in% 2:6 # Mon-Fri only
+    ) %>%
+    dplyr::mutate(la_type = ifelse(la_name %in% urban_las, "Core City", "Other")) %>%
+    dplyr::group_by(date, la_type) %>%
+    dplyr::summarise(average = mean(value)) %>%
+    ggplot2::ggplot(ggplot2::aes(x = date, y = average, colour = la_type)) +
+    ggplot2::geom_line(size = 1) +
+    ggplot2::labs(title = "Workplace mobility",
+                  subtitle = google_mobility$subtitle,
+                  caption = google_mobility$caption,
+                  colour = "Local Authority type") +
+    ggplot_theme
+}
+
