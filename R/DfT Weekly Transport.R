@@ -34,12 +34,16 @@ process_dft_mobility_data <- function(update = FALSE, path = NULL) {
   data <- readODS::read_ods(path, skip = 6, na = "..") %>%
     tibble::tibble()
   names(data) <- stringr::str_sub(names(data), 1, stringr::str_locate(names(data), stringr::fixed("["))[, 1] - 1)
-  data$Date <- as.Date(data$Date, tryFormats = c("%d/%m/%Y", "%m/%d/%Y"))
+  if (any(is.na(as.Date(data$Date, format = "%d/%m/%Y")))) {
+    data$Date <- as.Date(data$Date, format = "%m/%d/%Y")
+  } else {
+    data$Date <- as.Date(data$Date, format = "%d/%m/%Y")
+  }
 
   dft <- list()
   dft$data <- data
   dft$subtitle <- paste("Relative to pre-Covid equivalents.\nLast date in data:",
-                        format(max(dft$data$date), "%A %e %B %Y"))
+                        format(max(dft$data$Date), "%A %e %B %Y"))
   dft$caption <- paste("Source: Department for Transport: Transport use during the coronavirus (COVID-19) pandemic.\nAccessed", format(Sys.Date(), "%e %B %Y"))
 
   return(dft)
