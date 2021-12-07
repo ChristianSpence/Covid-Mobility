@@ -26,7 +26,7 @@ dft_transport_summary <- function(min_date = NULL) {
     ggplot2::facet_wrap(~ type) +
     ggplot2::labs(
       title = "Domestic transport use by mode",
-      subtitle = dft$subtitle,
+      subtitle = paste(dft$subtitle, "(Mon-Fri only)"),
       x = "",
       y = "Change on baseline",
       caption = dft$caption) +
