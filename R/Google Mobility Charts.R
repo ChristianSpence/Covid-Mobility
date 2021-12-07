@@ -24,6 +24,34 @@ ggplot_theme <- ggplot2::theme(
   strip.background   = ggplot2::element_blank()
 )
 
+google_mobility_summary_uk <- function(sub_region_1_name = "Greater Manchester", min_date = NULL) {
+
+  if (is.null(min_date)) {
+    min_date <- min(google_mobility$data$date)
+  } else {
+    min_date <- as.Date(min_date)
+  }
+
+  ggplot2::ggplot(google_mobility$data %>%
+                    dplyr::filter(date >= min_date,
+                                  is.na(sub_region_1),
+                                  !type %in% c("Parks", "Residential"),
+                                  lubridate::wday(date) %in% 2:6 # Mon - Fri only
+                    ),
+                  ggplot2::aes(x = date, y = value, colour = type)) +
+    ggplot2::geom_line(size = 1) +
+    # ggplot2::facet_wrap(~ la_name) +
+    ggplot2::labs(title = "Google Mobility Data",
+                  subtitle = paste(google_mobility$subtitle, "(Mon-Fri only)"),
+                  x = "",
+                  y = "Change on baseline (%)",
+                  caption = google_mobility$caption,
+                  colour = "Place type"
+    ) +
+    ggplot_theme
+}
+
+
 google_mobility_summary <- function(sub_region_1_name = "Greater Manchester", min_date = NULL) {
 
   if (is.null(min_date)) {
@@ -42,7 +70,7 @@ google_mobility_summary <- function(sub_region_1_name = "Greater Manchester", mi
     ggplot2::geom_line(size = 1) +
     ggplot2::facet_wrap(~ la_name) +
     ggplot2::labs(title = "Google Mobility Data",
-                  subtitle = google_mobility$subtitle,
+                  subtitle = paste(google_mobility$subtitle, "(Mon-Fri only)"),
                   x = "",
                   y = "Change on baseline (%)",
                   caption = google_mobility$caption,
@@ -68,7 +96,7 @@ google_workplaces_by_day_of_week <- function(sub_region_1_name = "Greater Manche
     ggplot2::facet_wrap(~ la_name) +
     ggplot2::labs(
       title = "Google Mobility Data (workplaces only)",
-      subtitle = google_mobility$subtitle,
+      subtitle = paste(google_mobility$subtitle, "(Mon-Fri only)"),
          x = "",
          y = "Change on baseline (%)",
          caption = google_mobility$caption,
@@ -94,7 +122,7 @@ google_transit_by_day_of_week <- function(sub_region_1_name = "Greater Mancheste
     ggplot2::facet_wrap(~ la_name) +
     ggplot2::labs(
       title = "Google Mobility Data (transit stations only)",
-      subtitle = google_mobility$subtitle,
+      subtitle = paste(google_mobility$subtitle, "(Mon-Fri only)"),
       x = "",
       y = "Change on baseline (%)",
       caption = google_mobility$caption,
@@ -171,6 +199,30 @@ google_leisure_by_core_cities_vs_others <- function(min_date = "2021-09-01") {
     ggplot2::ggplot(ggplot2::aes(x = date, y = average, colour = la_type)) +
     ggplot2::geom_line(size = 1) +
     ggplot2::labs(title = "Retail and recreation mobility",
+                  subtitle = google_mobility$subtitle,
+                  caption = google_mobility$caption,
+                  colour = "Local Authority type") +
+    ggplot_theme
+}
+
+google_transport_by_core_cities_vs_others <- function(min_date = "2021-09-01") {
+
+  min_date <- as.Date(min_date)
+
+  urban_las <- c("Belfast", "Birmingham", "Bristol, City of", "Cardiff", "Glasgow City", "Leeds", "Liverpool", "Manchester", "Newcastle upon Tyne", "Nottingham", "Sheffield") # Core Cities UK
+
+  google_mobility$data %>%
+    dplyr::filter(date >= min_date,
+                  sub_region_1 != "Greater London",
+                  type == "Transit stations"#,
+                  # lubridate::wday(date) %in% 2:6 # Mon-Fri only
+    ) %>%
+    dplyr::mutate(la_type = ifelse(la_name %in% urban_las, "Core City", "Other")) %>%
+    dplyr::group_by(date, la_type) %>%
+    dplyr::summarise(average = mean(value, na.rm = TRUE)) %>%
+    ggplot2::ggplot(ggplot2::aes(x = date, y = average, colour = la_type)) +
+    ggplot2::geom_line(size = 1) +
+    ggplot2::labs(title = "Transit stations mobility",
                   subtitle = google_mobility$subtitle,
                   caption = google_mobility$caption,
                   colour = "Local Authority type") +
