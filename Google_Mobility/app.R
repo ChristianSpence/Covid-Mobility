@@ -2,13 +2,10 @@ library(shiny)
 library(tidyverse)
 library(lubridate)
 
-# Define UI for application that draws a histogram
 ui <- fluidPage(
 
-  # Application title
-  titlePanel("Google Mobility Data"),
+  titlePanel("Google Mobility Data Exploration Tool"),
 
-  # Sidebar with a slider input for number of bins
   sidebarLayout(
     sidebarPanel(width = 2,
                  uiOutput("sub_region_1"),
@@ -18,14 +15,12 @@ ui <- fluidPage(
                  p("A quick and dirty app by @ChristianSpence")
     ),
 
-    # Show a plot of the generated distribution
     mainPanel(
       plotOutput("plot")
     )
   )
 )
 
-# Define server logic required to draw a histogram
 server <- function(input, output) {
 
   google_mobility <- readr::read_rds("google_mobility.rds")
@@ -87,7 +82,7 @@ server <- function(input, output) {
       ggplot2::geom_line(size = 1) +
       ggplot2::facet_wrap(~ sub_region_2) +
       ggplot2::labs(title = "Google Mobility Data",
-                    subtitle = google_mobility$subtitle,
+                    subtitle = paste(google_mobility$subtitle, "(Mon-Fri only)"),
                     x = "",
                     y = "Change on baseline (%)",
                     caption = google_mobility$caption,
@@ -106,5 +101,4 @@ server <- function(input, output) {
   }, height = 600)
 }
 
-# Run the application
 shinyApp(ui = ui, server = server)
