@@ -11,8 +11,9 @@ ui <- fluidPage(
                  uiOutput("sub_region_1"),
                  uiOutput("sub_region_2"),
                  uiOutput("type"),
+                 uiOutput("omit_weekends"),
                  uiOutput("date"),
-                 p("A quick and dirty app by @ChristianSpence")
+                 p("A quick and dirty app by @ChristianSpence at @MMU_FEAnalytics")
     ),
 
     mainPanel(
@@ -56,6 +57,12 @@ server <- function(input, output) {
     )
   })
 
+  output$omit_weekends <- renderUI({
+    checkboxInput("omit_weekends",
+                  "Omit weekends",
+                  value = TRUE)
+  })
+
   output$date <- renderUI({
     min = min(google_mobility$data$date)
     max = max(google_mobility$data$date)
@@ -68,6 +75,15 @@ server <- function(input, output) {
     )
   })
 
+  days_of_week <- function(df) {
+
+    if (input$omit_weekends) {
+      df <- filter(df, lubridate::wday(date) %in% 2:6)
+    }
+
+    return(df)
+  }
+
   output$plot <- renderPlot({
     req(input$sub_region_1, input$sub_region_2, input$type, input$date)
     ggplot2::ggplot(google_mobility$data %>%
@@ -75,9 +91,9 @@ server <- function(input, output) {
                                     date <= input$date[2],
                                     sub_region_1 %in% input$sub_region_1,
                                     sub_region_2 %in% input$sub_region_2,
-                                    type %in% input$type,
-                                    lubridate::wday(date) %in% 2:6 # Mon - Fri only
-                      ),
+                                    type %in% input$type) %>%
+                      days_of_week(),
+
                     ggplot2::aes(x = date, y = value, colour = type)) +
       ggplot2::geom_line(size = 1) +
       ggplot2::facet_wrap(~ sub_region_2) +
