@@ -13,7 +13,7 @@ ui <- fluidPage(
                  uiOutput("type"),
                  uiOutput("omit_weekends"),
                  uiOutput("date"),
-                 p("A quick and dirty app by @ChristianSpence at @MMU_FEAnalytics")
+                 p("A quick and dirty app by @ChristianSpence")
     ),
 
     mainPanel(

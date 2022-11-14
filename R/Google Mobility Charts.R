@@ -228,3 +228,28 @@ google_transport_by_core_cities_vs_others <- function(min_date = "2021-09-01") {
                   colour = "Local Authority type") +
     ggplot_theme
 }
+
+google_leisure_and_workplace_by_core_cities_vs_others <- function(min_date = "2021-09-01") {
+
+  min_date <- as.Date(min_date)
+
+  urban_las <- c("Belfast", "Birmingham", "Bristol, City of", "Cardiff", "Glasgow City", "Leeds", "Liverpool", "Manchester", "Newcastle upon Tyne", "Nottingham", "Sheffield") # Core Cities UK
+
+  google_mobility$data %>%
+    dplyr::filter(date >= min_date,
+                  sub_region_1 != "Greater London",
+                  type %in% c("Retail and recreation", "Workplaces"),
+                  lubridate::wday(date) %in% 2:6 # Mon-Fri only
+    ) %>%
+    dplyr::mutate(la_type = ifelse(la_name %in% urban_las, "Core City", "Other")) %>%
+    dplyr::group_by(date, la_type, type) %>%
+    dplyr::summarise(average = mean(value, na.rm = TRUE)) %>%
+    ggplot2::ggplot(ggplot2::aes(x = date, y = average, colour = la_type)) +
+    ggplot2::geom_line(size = 1) +
+    ggplot2::facet_wrap(~ type) +
+    ggplot2::labs(title = "Retail and recreation vs workplaces mobility",
+                  subtitle = google_mobility$subtitle,
+                  caption = google_mobility$caption,
+                  colour = "Local Authority type") +
+    ggplot_theme
+}
